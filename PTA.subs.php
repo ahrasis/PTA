@@ -1,13 +1,10 @@
 <?php
 
 /**
- * PrivateTopics.php
- *
- * @package Private Topics mod
- * @version 1.2
- * @author Jessica González <suki@missallsunday.com>
- * @copyright 2017 Jessica González
- * @license http://www.mozilla.org/MPL/ MPL 2.0
+ * 
+ * @author	Jessica González <suki@missallsunday.com>
+ * @license	http://www.mozilla.org/MPL/ MPL 2.0
+ * @addon	PTA: Private Topics Addon
  *
  */
 
@@ -19,7 +16,7 @@ class PrivateTopics
 
 	public function __construct()
 	{
-		loadLanguage('PrivateTopics');
+		loadLanguage('PTA/PTA');
 
 		$this->app = array(
 			'decode' => function($var){
@@ -35,8 +32,6 @@ class PrivateTopics
 
 	public function doSave($topic, $data = array())
 	{
-		global $smcFunc;
-
 		if (empty($topic) || empty($data))
 			return false;
 
@@ -47,7 +42,7 @@ class PrivateTopics
 		$data = array_merge($data, $this->getDefaultGroups());
 		$data = array_unique($data);
 
-		$smcFunc['db_query']('', '
+		$db->query('', '
 			UPDATE {db_prefix}topics
 			SET private_groups = {string:groups}, private_users = {string:users}
 			WHERE id_topic = {int:id}',
@@ -61,7 +56,7 @@ class PrivateTopics
 
 	public function checkMultipleTopics($topicIDs = array())
 	{
-		global $smcFunc, $user_info;
+		global $user_info;
 
 		if (empty($topicIDs))
 			return false;
@@ -71,7 +66,7 @@ class PrivateTopics
 		$topicIDs = array_unique($topicIDs);
 		$return = $temp = array();
 
-		$result = $smcFunc['db_query']('', '
+		$result = $db->query('', '
 			SELECT id_topic, private_users AS users, private_groups AS groups
 			FROM {db_prefix}topics
 			WHERE id_topic = IN({array_int:topics})',
@@ -80,10 +75,10 @@ class PrivateTopics
 			)
 		);
 
-		while ($row = $smcFunc['db_fetch_assoc']($result))
+		while ($row = $db->fetch_assoc($result))
 			$temp[$row['id_topic']] = $this->app['decode']($row);
 
-		$smcFunc['db_free_result']($request);
+		$db->free_result($request);
 
 		foreach ($topicIDs as $t)
 			$return[$t] = (bool) (count(array_intersect(array_keys($temp[$t]['groups']), $user_info['groups'])) == 0);
@@ -93,8 +88,6 @@ class PrivateTopics
 
 	public function getTopicInfo($topic = 0)
 	{
-		global $smcFunc;
-
 		if (empty($topic))
 			return array(
 				'groups' => array(),
@@ -106,7 +99,7 @@ class PrivateTopics
 		{
 			$return = array();
 
-			$result = $smcFunc['db_query']('', '
+			$result = $db->query('', '
 				SELECT private_users AS users, private_groups AS groups
 				FROM {db_prefix}topics
 				WHERE id_topic = {int:topic}',
@@ -115,10 +108,10 @@ class PrivateTopics
 				)
 			);
 
-			$data = $smcFunc['db_fetch_assoc']($result);
+			$data = $db->fetch_assoc($result);
 			$data = array_filter($data);
 
-			$smcFunc['db_free_result']($result);
+			$db->free_result($result);
 
 			if (empty($data))
 				return array(
@@ -132,33 +125,33 @@ class PrivateTopics
 			// Query to get the users name
 			if (!empty($data['users']))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = $db->query('', '
 					SELECT id_member, member_name
 					FROM {db_prefix}members
 					WHERE id_member IN({array_int:users})',
 					$data
 				);
 
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = $db->fetch_assoc($request))
 					$return['users'][$row['id_member']] = $row['member_name'];
 
-				$smcFunc['db_free_result']($request);
+				$db->free_result($request);
 			}
 
 			// Get the groups names
 			if (!empty($data['groups']))
 			{
-				$request = $smcFunc['db_query']('', '
+				$request = $db->query('', '
 					SELECT id_group, group_name
 					FROM {db_prefix}membergroups
 					WHERE id_group IN({array_int:groups})',
 					$data
 				);
 
-				while ($row = $smcFunc['db_fetch_assoc']($request))
+				while ($row = $db->fetch_assoc($request))
 					$return['groups'][$row['id_group']] = $row['group_name'];
 
-				$smcFunc['db_free_result']($request);
+				$db->free_result($request);
 			}
 
 			// Cache this beauty
@@ -212,9 +205,9 @@ class PrivateTopics
 
 	public function membergroups($ids = array())
 	{
-		global $smcFunc, $modSettings, $txt;
+		global $modSettings, $txt;
 
-		$request = $smcFunc['db_query']('', '
+		$request = $db->query('', '
 			SELECT id_group, group_name
 			FROM {db_prefix}membergroups
 			WHERE id_group > {int:admin}
@@ -227,10 +220,10 @@ class PrivateTopics
 
 		$return = array();
 
-		while ($row = $smcFunc['db_fetch_assoc']($request))
+		while ($row = $db->fetch_assoc($request))
 			$return[$row['id_group']] = $row['group_name'];
 
-		$smcFunc['db_free_result']($request);
+		$db->free_result($request);
 
 		return $return;
 	}
@@ -310,7 +303,7 @@ function PrivateTopics_admin(&$admin_areas)
 {
 	global $txt, $context;
 
-	loadLanguage('PrivateTopics');
+	loadLanguage('PTA/PTA');
 
 	if (!isset($context['PrivateTopic']))
 		$context['PrivateTopic'] = new PrivateTopics();
@@ -328,12 +321,12 @@ function PrivateTopics_admin(&$admin_areas)
 
 function PrivateTopics_handler($return_config = false)
 {
-	global $scripturl, $context, $sourcedir, $txt;
+	global $scripturl, $context, $txt;
 
 	//I can has Adminz?
 	isAllowedTo('admin_forum');
 
-	require_once($sourcedir . '/ManageSettings.php');
+	require_once(SUBSDIR . '/AddonSettings.subs.php');
 
 	$context['page_title'] = $txt['PrivateTopics_title'];
 
@@ -357,19 +350,19 @@ function PrivateTopics_handler($return_config = false)
 
 function PrivateTopics_settings($return_config = false)
 {
-	global $txt, $scripturl, $context, $sourcedir, $smcFunc, $modSettings;
+	global $txt, $scripturl, $context, $modSettings;
 
 	//I can has Adminz?
 	isAllowedTo('admin_forum');
 
-	require_once($sourcedir . '/ManageServer.php');
-	loadTemplate('PrivateTopics');
+	require_once(SUBSDIR . '/PackageServers.subs.php');
+	loadTemplate('PTA/PTA');
 	loadLanguage('ManageMembers');
 
 	$selected_board = !empty($modSettings['PrivateTopics_boards']) ? json_decode($modSettings['PrivateTopics_boards'], true) : array();
 	$context['boards'] = array();
 
-	$result = $smcFunc['db_query']('', '
+	$result = $db->query('', '
 		SELECT id_board, name, child_level
 		FROM {db_prefix}boards
 		ORDER BY board_order',
@@ -377,7 +370,7 @@ function PrivateTopics_settings($return_config = false)
 		)
 	);
 
-	while ($row = $smcFunc['db_fetch_assoc']($result))
+	while ($row = $db->fetch_assoc($result))
 		$context['boards'][$row['id_board']] = array(
 			'id' => $row['id_board'],
 			'name' => $row['name'],
@@ -385,7 +378,7 @@ function PrivateTopics_settings($return_config = false)
 			'selected' => in_array($row['id_board'], $selected_board)
 		);
 
-	$smcFunc['db_free_result']($result);
+	$db->free_result($result);
 
 	$groups = $context['PrivateTopic']->membergroups();
 
