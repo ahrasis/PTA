@@ -1,28 +1,37 @@
 <?xml version="1.0"?>
-<!DOCTYPE package-info SYSTEM "http://www.simplemachines.org/xml/package-info">
-
-<package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
+<!DOCTYPE package-info SYSTEM "http://www.elkarte.net/site/package-info">
+<package-info xmlns="http://www.elkarte.net/site/package-info" xmlns:elk="http://www.elkarte.net/">
+	<license><![CDATA[
+/**
+ *
+ * @author	Jessica González <suki@missallsunday.com>
+ * @license	http://www.mozilla.org/MPL/ MPL 2.0
+ * @addon	PTA: Private Topics Addon
+ *
+ */ 
+]]></license>
 	<id>Suki:PrivateTopics</id>
-	<name>Private Topics</name>
-	<version>1.2</version>
+	<name>PTA: Private Topics Addon</name>
+	<version>1.0.0</version>
 	<type>modification</type>
 
-	<install for="2.0 - 2.0.99">
-		<database>install.php</database>
-		<code>hooks.php</code>
+	<install for="1.*">
+		<database>PTA.db.php</database>
+		<code>PTA.hooks.php</code>
 		<readme type="file" parsebbc="true">readme.txt</readme>
-		<modification>PrivateTopics.xml</modification>
-		<require-file name="Sources/PrivateTopics.php" destination="$sourcedir">source</require-file>
-		<require-dir name="Themes" destination="$boarddir">Theme files</require-dir>
+		<modification>PTA.mods.xml</modification>
+		<require-file name="PTA.subs.php" destination="SOURCEDIR/addons/PTA" />
+		<require-file name="PTA.english.php" destination="LANGUAGEDIR/english/PTA" />
+		<require-file name="PTA.template.php" destination="THEMEDIR/PTA" />
 		<redirect url="$scripturl?action=admin;area=privatetopics" timeout="3000"></redirect>
 	</install>
 
-	<uninstall for="2.0 - 2.0.99">
-		<code>remove.php</code>
-		<database>install.php</database>
-		<modification reverse="true">PrivateTopics.xml</modification>
-		<remove-file name="$sourcedir/PrivateTopics.php" />
-		<remove-file name="$languagedir/PrivateTopics.english.php" />
-		<remove-file name="$themedir/PrivateTopics.template.php" />
+	<uninstall for="1.*">
+		<code>PTA.hooks.php</code>
+		<database>PTA.db.php</database>
+		<modification reverse="true">PTA.mods.xml</modification>
+		<remove-dir name="SOURCEDIR/addons/PTA" />
+		<remove-dir name="THEMEDIR/PTA" />
+		<remove-dir name="LANGUAGEDIR/english/PTA" />
 	</uninstall>
 </package-info>
