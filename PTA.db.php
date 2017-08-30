@@ -1,13 +1,10 @@
 <?php
 
 /**
- * install.php
- *
- * @package Private Topics mod
- * @version 1.2
- * @author Jessica González <suki@missallsunday.com>
- * @copyright 2017 Jessica González
- * @license http://www.mozilla.org/MPL/ MPL 2.0
+ * 
+ * @author	Jessica González <suki@missallsunday.com>
+ * @license	http://www.mozilla.org/MPL/ MPL 2.0
+ * @addon	PTA: Private Topics Addon
  *
  */
 
