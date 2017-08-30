@@ -1,3 +1,3 @@
-# This mod isn't ready for production usage
+# This mod isn't ready for production
 
-### Please do not download and install this mod on a production forum.  Its incomplete and I currently do not have the time to properly update it.
+### Please do not install this addon on a live ElkArte forum.  It is not tested or warranted. You ay use it at your own risks only.
